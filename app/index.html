@@ -32,6 +32,10 @@ a{color:inherit}
 .rv.on{opacity:1;transform:none}
 .rv-stagger>*{opacity:0;transform:translateY(18px);transition:opacity .6s var(--ease-reveal),transform .6s var(--ease-reveal);transition-delay:calc(var(--i,0)*70ms)}
 .rv-stagger.on>*{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){
+  .rv,.rv-stagger>*{opacity:1!important;transform:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
 
 /* ---------- hero ---------- */
 .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;padding:0 6vw}
@@ -77,12 +81,12 @@ section.block{padding:11vh 6vw;position:relative}
 /* ---------- map ---------- */
 .map-wrap{position:relative;border:1px solid var(--border);background:var(--panel)}
 #mapChart{width:100%;height:min(72vh,680px)}
-.map-note{position:absolute;left:16px;top:12px;font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.08em;pointer-events:none;z-index:5}
+.map-note{position:absolute;left:16px;bottom:12px;font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.08em;pointer-events:none}
 .map-fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:var(--faint);font-size:13px}
-.map-tools{position:absolute;top:10px;right:10px;z-index:5;display:flex;flex-direction:column;gap:5px}
-.map-tools button{width:30px;height:30px;background:rgba(23,25,29,.88);border:1px solid var(--border);color:var(--muted);font-size:15px;line-height:1;cursor:pointer;transition:all .2s;font-family:var(--mono);display:flex;align-items:center;justify-content:center;padding:0}
-.map-tools button:hover{color:#0a0b0d;background:var(--signal);border-color:var(--signal)}
-#zRst{font-size:11px;letter-spacing:.05em}
+.map-ctrl{position:absolute;right:14px;top:14px;z-index:6;display:flex;flex-direction:column;gap:6px}
+.map-ctrl button{width:30px;height:30px;border:1px solid var(--border);background:rgba(10,11,13,.78);backdrop-filter:blur(6px);color:var(--muted);font-family:var(--mono);font-size:14px;cursor:pointer;transition:all .2s;line-height:1}
+.map-ctrl button:hover{color:#0a0b0d;background:var(--signal);border-color:var(--signal)}
+.map-ctrl button.wide{width:auto;padding:0 10px;font-size:11px;letter-spacing:.1em}
 .map-head{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
 .map-head .sec-desc{margin-bottom:40px}
 .map-ver{display:inline-flex;border:1px solid var(--border);background:var(--panel);margin-left:auto;margin-bottom:40px;flex:none}
@@ -95,14 +99,17 @@ section.block{padding:11vh 6vw;position:relative}
 
 /* ---------- timeline ---------- */
 .tl-scroll{overflow-x:auto;border:1px solid var(--border);background:var(--panel);padding:34px 30px 26px}
-.tl-inner{position:relative;min-width:1180px}
-.tl-axis{position:relative;height:24px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.tl-inner{position:relative;min-width:1180px;--tlw:220px}
+.tl-axis-row{display:flex;height:24px;margin-bottom:10px}
+.tl-axis-spacer{flex:none;width:var(--tlw)}
+.tl-axis{position:relative;flex:1;height:24px;border-bottom:1px solid var(--border)}
 .tl-tick{position:absolute;top:0;font-family:var(--mono);font-size:10px;color:var(--faint);transform:translateX(-50%);letter-spacing:.05em}
 .tl-tick::after{content:"";position:absolute;top:20px;left:50%;width:1px;height:7px;background:var(--border)}
-.tl-row{position:relative;height:34px;border-bottom:1px dashed rgba(255,255,255,.045)}
+.tl-row{display:flex;height:34px;border-bottom:1px dashed rgba(255,255,255,.045)}
 .tl-row:hover{background:rgba(255,255,255,.025)}
-.tl-label{position:absolute;left:0;top:0;height:34px;display:flex;align-items:center;font-size:12px;color:var(--muted);width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.tl-label{flex:none;width:var(--tlw);display:flex;align-items:center;font-size:12px;color:var(--muted);white-space:nowrap;padding-right:16px;cursor:pointer}
 .tl-label:hover{color:var(--signal)}
+.tl-track{position:relative;flex:1;height:34px}
 .tl-bar{position:absolute;top:9px;height:16px;border-radius:2px;cursor:pointer;transition:filter .2s,transform .2s;min-width:5px}
 .tl-bar:hover{filter:brightness(1.35);transform:scaleY(1.25)}
 .tl-bar .tip{position:absolute;bottom:130%;left:50%;transform:translateX(-50%);background:#1d2026;border:1px solid var(--border);padding:8px 12px;font-size:11px;color:var(--text);white-space:nowrap;display:none;z-index:5;pointer-events:none}
@@ -153,13 +160,17 @@ section.block{padding:11vh 6vw;position:relative}
 .modal-close:hover{color:#0a0b0d;background:var(--signal);border-color:var(--signal)}
 .modal-img{aspect-ratio:16/8;overflow:hidden;background:#0d0e11}
 .modal-img img{width:100%;height:100%;object-fit:cover}
+.m-thumbs{display:flex;gap:7px;padding:12px 34px 0;flex-wrap:wrap}
+.m-thumb{width:68px;height:46px;object-fit:cover;cursor:pointer;border:1px solid var(--border);opacity:.5;filter:grayscale(.4);transition:all .25s var(--ease-reveal)}
+.m-thumb:hover{opacity:.85;border-color:var(--signal)}
+.m-thumb.act{opacity:1;filter:none;border-color:var(--signal);box-shadow:0 0 0 1px var(--signal)}
 .modal-body{padding:30px 34px 36px}
 .modal-body .m-city{font-family:var(--mono);font-size:12px;color:var(--signal);letter-spacing:.25em}
 .modal-body h3{font-family:var(--serif);font-weight:900;font-size:28px;margin:8px 0 4px}
 .m-statusline{display:flex;gap:14px;align-items:center;font-size:12px;color:var(--muted);margin-bottom:20px}
 .m-statusline .stag{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;letter-spacing:.1em}
 .m-statusline s{width:8px;height:8px;border-radius:50%;display:inline-block;text-decoration:none}
-.m-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:22px}
+.m-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:22px}
 .m-cell{background:var(--panel2);padding:12px 14px}
 .m-cell span{display:block;font-size:10px;color:var(--faint);letter-spacing:.18em;margin-bottom:4px}
 .m-cell b{font-weight:400;font-size:13.5px;color:var(--text);line-height:1.5}
@@ -190,7 +201,11 @@ footer a:hover{color:var(--signal);border-color:var(--signal)}
   .tl-label{width:120px;font-size:11px}
   .fsearch{width:100%;margin-left:0}
   .fsearch input{width:100%}
+  .modal-body{padding:22px 20px 26px}
+  .m-thumbs{padding:10px 20px 0}
 }
+@media(max-width:1100px){.m-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:560px){.m-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -224,19 +239,19 @@ footer a:hover{color:var(--signal);border-color:var(--signal)}
   <div class="rv">
     <div class="sec-head"><span class="sec-num">01 / ATLAS</span><h2 class="sec-title">消失的地图</h2></div>
     <div class="map-head">
-      <p class="sec-desc" style="margin-bottom:40px">33 个轨交系统的地理分布。点的大小对应已建里程，颜色对应结局——东北的老摩电、云南的烂尾电车、散落全国的"幻想柱"，一目了然。点击节点可查看档案。右上角切换地图版本：V1 为原始版本，V2 在其基础上逐步开发。</p>
+      <p class="sec-desc" style="margin-bottom:40px">33 个轨交系统的地理分布。点的大小对应已建里程，颜色对应结局——东北的老摩电、云南的烂尾电车、散落全国的"幻想柱"。点击节点可查看档案。</p>
       <div class="map-ver" id="mapVer">
-        <button class="act" data-v="v1">V1<i>原版</i></button>
-        <button data-v="v2">V2<i>开发中</i><s class="dot"></s></button>
+        <button data-v="v1">V1<i>原版</i></button>
+        <button class="act" data-v="v2">V2<i>开发中</i><s class="dot"></s></button>
       </div>
     </div>
   </div>
   <div class="map-wrap rv">
     <div id="mapChart"></div>
-    <div class="map-tools" id="mapTools">
-      <button id="zIn" title="放大">＋</button>
-      <button id="zOut" title="缩小">－</button>
-      <button id="zRst" title="重置视图">RST</button>
+    <div class="map-ctrl" id="mapCtrl">
+      <button data-a="in" title="放大">＋</button>
+      <button data-a="out" title="缩小">－</button>
+      <button data-a="reset" class="wide" title="回到全国视图">复位</button>
     </div>
     <div class="map-note" id="mapNote">GEO · GCJ-02 APPROX. COORDS</div>
     <div class="map-fallback" id="mapFallback">底图加载失败，已切换为坐标散点视图</div>
@@ -246,7 +261,7 @@ footer a:hover{color:var(--signal);border-color:var(--signal)}
 <section class="block" id="timeline">
   <div class="rv">
     <div class="sec-head"><span class="sec-num">02 / TIMELINE</span><h2 class="sec-title">一百二十七年的告别</h2></div>
-    <p class="sec-desc">每一格横杠是一个系统的"生命跨度"：从建成/开工到停运、拆除或叫停。✕ 标记生命的终点。悬停查看详情，点击跳转档案。</p>
+    <p class="sec-desc">每一格横杠是一个系统的"生命跨度"：从建成/开工到停运、拆除或叫停。✕ 标记生命的终点。时间轴为对数刻度——越靠近今天，一格代表的年份越短。悬停查看详情，点击跳转档案。</p>
   </div>
   <div class="tl-scroll rv">
     <div class="tl-inner" id="tlInner"></div>
@@ -361,7 +376,9 @@ const modalMask=$('#modalMask'),modalBox=$('#modalBox');
 function openModal(id){
   const p=PROJECTS.find(x=>x.id===id);if(!p)return;
   const st=STATUS[p.statusKey];
-  const imgHtml=p.img?`<div class="modal-img"><img src="${p.img}" alt="${p.name}"></div>`:'';
+  const shots=p.img?[p.img,...(p.gallery||[])]:[];
+  const imgHtml=shots.length?`<div class="modal-img"><img id="mMainImg" src="${shots[0]}" alt="${p.name}"></div>
+    ${shots.length>1?`<div class="m-thumbs">${shots.map((s,i)=>`<img class="m-thumb${i===0?' act':''}" data-full="${s}" src="${s}" alt="${p.name} 现场图 ${i+1}">`).join('')}</div>`:''}`:'';
   modalBox.innerHTML=`
     <button class="modal-close" onclick="closeModal()">✕</button>
     ${imgHtml}
@@ -388,6 +405,13 @@ function openModal(id){
 }
 function closeModal(){modalMask.classList.remove('show');document.body.style.overflow='';}
 modalMask.addEventListener('click',e=>{if(e.target===modalMask)closeModal();});
+modalBox.addEventListener('click',e=>{
+  const t=e.target.closest('.m-thumb');if(!t)return;
+  const main=modalBox.querySelector('#mMainImg');if(!main)return;
+  main.src=t.dataset.full;
+  modalBox.querySelectorAll('.m-thumb').forEach(x=>x.classList.remove('act'));
+  t.classList.add('act');
+});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
 /* ============ cards + filters ============ */
@@ -442,30 +466,37 @@ $('#searchInput').addEventListener('input',e=>{fSearch=e.target.value;renderCard
 
 /* ============ timeline ============ */
 (function(){
-  const T0=1895,T1=2030;
+  const T0=1840,T_REF=2030,T_END=2026; /* 起点 1840 留出左侧余量；对数锚点取 2030，显示区间在 2026 处截断 */
+  const tlF=y=>(Math.log(T_REF-T0)-Math.log(T_REF-y))/(Math.log(T_REF-T0)-Math.log(T_REF-T_END))*100; /* 对数刻度：压缩久远年代、拉开近三十年 */
   const inner=$('#tlInner');
-  const years=[1900,1925,1950,1975,2000,2010,2020,2026];
-  let html='<div class="tl-axis">'+years.map(y=>`<span class="tl-tick" style="left:${(y-T0)/(T1-T0)*100}%">${y}</span>`).join('')+'</div>';
+  const years=[1850,1900,1925,1950,1975,2000,2010,2020,2026];
+  let html='<div class="tl-axis-row"><span class="tl-axis-spacer"></span><div class="tl-axis">'+years.map(y=>`<span class="tl-tick" style="left:${tlF(y)}%">${y}</span>`).join('')+'</div></div>';
   const rows=[...PROJECTS].sort((a,b)=>a.yearStart-b.yearStart);
   rows.forEach(p=>{
     const st=STATUS[p.statusKey];
-    const l=(p.yearStart-T0)/(T1-T0)*100;
-    const end=p.yearEnd||2026;
-    const w=Math.max((end-p.yearStart)/(T1-T0)*100,.5);
+    const l=tlF(p.yearStart);
+    const end=p.yearEnd||T_END; /* 存续项目横杠延伸到时间轴最右端（=当下，2026 截断处） */
+    const w=Math.max(tlF(end)-tlF(p.yearStart),.9);
     const grad=p.yearEnd
       ?`background:linear-gradient(90deg,${st.color},${st.color}55)`
       :`background:linear-gradient(90deg,${st.color},${SIG});box-shadow:0 0 12px ${SIG}66`;
     html+=`<div class="tl-row">
       <span class="tl-label" onclick="openModal('${p.id}')">${p.city} · ${p.name}</span>
-      <span class="tl-bar" style="left:${l}%;width:${w}%;${grad}" onclick="openModal('${p.id}')">
-        <span class="tip">${p.city} · ${p.name}<br>${p.yearStart} – ${p.yearEnd||'至今（仅存 54 路）'} · <em>${st.name}</em></span>
+      <span class="tl-track">
+        <span class="tl-bar" style="left:${l}%;width:${w}%;${grad}" onclick="openModal('${p.id}')">
+          <span class="tip">${p.city} · ${p.name}<br>${p.yearStart} – ${p.yearEnd||'至今（仅存 54 路）'} · <em>${st.name}</em></span>
+        </span>
+        ${p.yearEnd?`<span class="tl-dead" style="left:${tlF(end)}%" onclick="openModal('${p.id}')">
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1 L9 9 M9 1 L1 9" stroke="${st.color}" stroke-width="1.6"/></svg>
+        </span>`:''}
       </span>
-      ${p.yearEnd?`<span class="tl-dead" style="left:${(end-T0)/(T1-T0)*100}%" onclick="openModal('${p.id}')">
-        <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1 L9 9 M9 1 L1 9" stroke="${st.color}" stroke-width="1.6"/></svg>
-      </span>`:''}
     </div>`;
   });
   inner.innerHTML=html;
+  /* 标签不限宽、不截断：按最宽标签实测值设定标签列宽 */
+  let maxW=0;
+  inner.querySelectorAll('.tl-label').forEach(el=>{maxW=Math.max(maxW,el.scrollWidth);});
+  inner.style.setProperty('--tlw',(maxW+2)+'px');
 })();
 
 /* ============ ECharts base ============ */
@@ -480,8 +511,8 @@ window.addEventListener('resize',()=>charts.forEach(c=>c.resize()));
 
 /* ============ map (ECharts) — V1 原版 / V2 开发中 ============ */
 let mapChart=null,mapReady=false,mapGeoLoaded=false;
-let MAPVER='v1';
-try{MAPVER=localStorage.getItem('md.mapver')||'v1';}catch(e){}
+let MAPVER='v2';
+try{MAPVER=localStorage.getItem('md.mapver')||'v2';}catch(e){}
 {const qv=new URLSearchParams(location.search).get('ver');if(qv==='v1'||qv==='v2')MAPVER=qv;}
 function mapData(){
   return PROJECTS.map(p=>({
@@ -493,8 +524,10 @@ function mapData(){
 }
 /* V2 标签布局：贪心碰撞避让 + 引导线（不隐藏任何标签）
    1) 用 measureText 得到标签真实像素宽高，按里程降序为每个点找空位
-   2) 候选位 = 节点周围 8 方向 × 3 档距离，先试右/左，避开所有已放标签与圆点
-   3) 标签被推远时画引导线（lines 系列）连回节点；roam/缩放/筛选变化后自动重排 */
+   2) 候选位 = 节点周围 8 方向 × N 档距离，先试右/左，避开所有已放标签与圆点
+   3) 标签被推远时画引导线（lines 系列）连回节点；roam/缩放/筛选变化后自动重排
+   4) 缩放分级：zoom ≥ 1.6 时节点已散开，只就近取位、不再画引导线；
+      zoom ≥ 2.4 时进一步允许标签压节点边缘，彻底告别引导线 */
 const V2_FONT='11px "Noto Sans SC",sans-serif';
 const V2_MCTX=document.createElement('canvas').getContext('2d');
 V2_MCTX.font=V2_FONT;
@@ -509,16 +542,17 @@ function v2Layout(){
   if(!mapChart||!mapReady||!mapGeoLoaded||MAPVER!=='v2')return; /* 标签避让依赖 geo 坐标系；底图缺失时跳过 */
   if(!document.getElementById('mapChart').offsetWidth)return; /* 容器隐藏时 convertToPixel 返回 NaN */
   const keep=v2Keep(),CW=mapChart.getWidth(),CH=mapChart.getHeight();
+  const geoOpt=(mapChart.getOption().geo||[])[0]||{};
+  const zoom=geoOpt.zoom||1;
+  const nearMode=zoom>=1.6;   /* 放大后：就近取位，不出引导线 */
+  const freeMode=zoom>=2.4;   /* 深度放大：允许标签压住节点边缘 */
   const rows=PROJECTS.map(p=>{
     const px=mapChart.convertToPixel({geoIndex:0},[p.lng,p.lat]);
     if(!px||!isFinite(px[0])||!isFinite(px[1]))return null;
     return {p,x:px[0],y:px[1],sym:keep.has(p.id)?v2Sym(p):6,on:keep.has(p.id)};
   }).filter(Boolean);
-  /* 视图外的点：圆点照常（滚回来就在），但不参与标签排布 */
-  const onScreen=rows.filter(o=>o.on&&o.x>=-6&&o.x<=CW+6&&o.y>=-6&&o.y<=CH+6);
   const obs=[];
   rows.forEach(o=>{const r=o.sym/2+2;obs.push([o.x-r,o.y-r,o.x+r,o.y+r]);});
-  const vis=new Set(onScreen);
   const placed=[];
   const items=[],lines=[];
   [...rows].sort((a,b)=>(b.on-a.on)||(v2Km(b.p)-v2Km(a.p))).forEach(o=>{
@@ -528,15 +562,10 @@ function v2Layout(){
         itemStyle:{color:'#3a3f49',shadowBlur:0},label:{show:false}});
       return;
     }
-    if(!vis.has(o)){ /* 屏外保留正常圆点样式，只是不打标签 */
-      items.push({name:`${p.city} · ${p.name}`,value:[p.lng,p.lat],pid:p.id,symbolSize:o.sym,
-        itemStyle:{color:STATUS[p.statusKey].color,shadowBlur:12,shadowColor:STATUS[p.statusKey].color+'88'},
-        label:{show:false}});
-      return;
-    }
     const w=Math.ceil(V2_MCTX.measureText(p.city).width)+10,h=22; /* 预测框含 4~5px 安全边距，吸收渲染基线误差 */
     let best=null;
-    outer:for(const D of [14,28,44,62,82]){
+    const Ds=nearMode?(freeMode?[14]:[14,28]):[14,28,44,62,82];
+    outer:for(const D of Ds){
       const cands=[
         [o.x+o.sym/2+D,o.y-h/2,1],[o.x-o.sym/2-D-w,o.y-h/2,-1],
         [o.x-w/2,o.y-o.sym/2-D-h,0],[o.x-w/2,o.y+o.sym/2+D,0],
@@ -546,11 +575,12 @@ function v2Layout(){
       for(const c of cands){
         const x=c[0],y=c[1],rc=[x,y,x+w,y+h];
         if(x<2||y<2||x+w>CW-2||y+h>CH-2)continue;
-        if(obs.some(r=>rectHit(r,rc))||placed.some(r=>rectHit(r,rc)))continue;
-        best={x:rc[0]+5,y:rc[1]+3,w:w-10,h:16,dir:c[2]};placed.push(rc);break outer;
+        if(!freeMode&&obs.some(r=>rectHit(r,rc)))continue; /* 深度放大时允许标签压住节点边缘 */
+        if(placed.some(r=>rectHit(r,rc)))continue;
+        best={x:rc[0]+5,y:rc[1]+3,w:w-10,h:16,dir:c[2],rc};placed.push(rc);break outer;
       }
     }
-    if(!best){ /* 五档内放不下：放宽"避开圆点"，只保证不与已放标签相撞 */
+    if(!best&&!nearMode){ /* 五档内放不下：放宽"避开圆点"，只保证不与已放标签相撞 */
       outer2:for(const D of [100,120,140]){
         const cands=[
           [o.x+o.sym/2+D,o.y-h/2,1],[o.x-o.sym/2-D-w,o.y-h/2,-1],
@@ -560,11 +590,11 @@ function v2Layout(){
           const x=c[0],y=c[1],rc=[x,y,x+w,y+h];
           if(x<2||y<2||x+w>CW-2||y+h>CH-2)continue;
           if(placed.some(r=>rectHit(r,rc)))continue;
-          best={x:rc[0]+5,y:rc[1]+3,w:w-10,h:16,dir:c[2]};placed.push(rc);break outer2;
+          best={x:rc[0]+5,y:rc[1]+3,w:w-10,h:16,dir:c[2],rc};placed.push(rc);break outer2;
         }
       }
     }
-    if(!best){const x=o.x+o.sym/2+14,y=o.y-h/2;placed.push([x,y,x+w,y+h]);best={x:x+5,y:y+3,w:w-10,h:16,dir:1};}
+    if(!best){const x=o.x+o.sym/2+14,y=o.y-h/2;const rc=[x,y,x+w,y+h];placed.push(rc);best={x:x+5,y:y+3,w:w-10,h:16,dir:1,rc};}
     /* position:'top' 的默认锚点在圆顶部 (x, y-sym/2)，offset 把文字底边中心搬到目标框 */
     const ox=Math.round(best.x+best.w/2-o.x),oy=Math.round(best.y+best.h-(o.y-o.sym/2));
     items.push({name:`${p.city} · ${p.name}`,value:[p.lng,p.lat],pid:p.id,
@@ -572,27 +602,55 @@ function v2Layout(){
       label:{show:true,formatter:p.city,position:'top',distance:0,offset:[ox,oy],
         color:'#c6ccd6',fontSize:11,fontFamily:'"Noto Sans SC",sans-serif',
         textBorderColor:'#0a0b0d',textBorderWidth:2.5}});
-    /* 引导线：标签被推离原位才画；L 形折线 节点边缘 → 折角 → 标签框近点侧中点 */
-    const far=best.x>o.x+o.sym/2+15||best.x+best.w<o.x-o.sym/2-15||best.y>o.y+o.sym/2+15||best.y+best.h<o.y-o.sym/2-15;
+    /* 引导线：用原始外框判断"被推离"（内缩盒自带边距，直接比会全员误判）；放大后一律不画 */
+    const R=best.rc;
+    const far=!nearMode&&(R[0]>o.x+o.sym/2+15||R[2]<o.x-o.sym/2-15||R[1]>o.y+o.sym/2+15||R[3]<o.y-o.sym/2-15);
     if(far){
       let s,e;
       if(best.dir===1){s=[o.x+o.sym/2,o.y];e=[best.x,best.y+best.h/2];}
       else if(best.dir===-1){s=[o.x-o.sym/2,o.y];e=[best.x+best.w,best.y+best.h/2];}
       else if(best.y<o.y){s=[o.x,o.y-o.sym/2];e=[best.x+best.w/2,best.y+best.h];}
       else{s=[o.x,o.y+o.sym/2];e=[best.x+best.w/2,best.y];}
-      const px=s[1]===e[1]?[s,e]:[s,[e[0],s[1]],e];
-      lines.push({coords:px.map(q=>mapChart.convertFromPixel({geoIndex:0},q))});
+      /* 斜线：从节点边缘直达标签框近侧中点，不再打平成折线 */
+      lines.push({coords:[s,e].map(q=>mapChart.convertFromPixel({geoIndex:0},q))});
     }
   });
   mapChart.setOption({series:[
     {id:'v2pts',data:items},
-    {id:'v2lines',data:lines},
+    {id:'v2lines',data:lines,lineStyle:{opacity:nearMode?0:.9}},
   ]});
+  updateMapNote(zoom);
+}
+function mapZoom(){
+  const o=(mapChart&&mapChart.getOption&&mapChart.getOption())||{};
+  const g=(o.geo||[])[0]||{};
+  return g.zoom||1;
+}
+function updateMapNote(zoom){
+  const z=Math.round((zoom==null?mapZoom():zoom)*100);
+  $('#mapNote').textContent=MAPVER==='v1'
+    ?'V1 · GEO · GCJ-02 APPROX. COORDS'
+    :`V2 · 标签避让${z>=160?'（就近标注 · 无引导线）':' + 引导线'} · 缩放 ${z}%`;
+}
+function mapZoomTo(z,anchor){
+  if(!mapChart||!mapReady||!mapGeoLoaded)return;
+  const o=mapChart.getOption()||{};
+  const g=(o.geo||[])[0]||{};
+  const oz=g.zoom||1,oc=g.center||[105,35.5];
+  const nz=Math.min(Math.max(oz*z,.6),12);
+  /* anchor（像素点）保持在原位：center 向点击处收敛 */
+  let nc=oc;
+  if(anchor){
+    const geo=mapChart.convertFromPixel({geoIndex:0},anchor);
+    if(geo&&isFinite(geo[0]))nc=[geo[0]+(oc[0]-geo[0])*oz/nz,geo[1]+(oc[1]-geo[1])*oz/nz];
+  }
+  mapChart.setOption({geo:{zoom:nz,center:nc}});
+  v2Layout();
 }
 function mapOption(withGeo){
   const v2=MAPVER==='v2';
   return {...ecBase(),
-    geo:withGeo?{map:'china',roam:true,scaleLimit:{min:1,max:14},zoom:1.16,center:[105,35.5],
+    geo:withGeo?{map:'china',roam:true,zoom:2.0,center:[105,35.5],
       itemStyle:{areaColor:'#101216',borderColor:'#2a2f38',borderWidth:.6},
       emphasis:{itemStyle:{areaColor:'#181b21'},label:{show:false}},
       select:{disabled:true}}:undefined,
@@ -601,10 +659,9 @@ function mapOption(withGeo){
       return `<b>${p.city} · ${p.name}</b><br>${p.mode} · ${STATUS[p.statusKey].name}<br>${p.yearStart} – ${p.yearEnd||'（仅存一线）'}`;}},
     series:v2&&withGeo?[
       {id:'v2pts',type:'scatter',coordinateSystem:'geo',data:mapData(),
-        emphasis:{scale:1.6,label:{color:'#fff'}},zlevel:2,animation:false},
+        emphasis:{scale:1.6},zlevel:2},
       {id:'v2lines',type:'lines',coordinateSystem:'geo',data:[],
-        silent:true,zlevel:1,animation:false,
-        lineStyle:{color:'#525c6b',width:1,opacity:.9}},
+        silent:true,zlevel:1,lineStyle:{color:'#525c6b',width:1,opacity:.9}},
     ]:[
       {id:'v2pts',type:'scatter',coordinateSystem:withGeo?'geo':'cartesian2d',data:mapData(),
         emphasis:{scale:1.6},zlevel:2},
@@ -613,9 +670,7 @@ function mapOption(withGeo){
 }
 function applyMapVer(){
   document.querySelectorAll('#mapVer button').forEach(b=>b.classList.toggle('act',b.dataset.v===MAPVER));
-  $('#mapNote').textContent=MAPVER==='v1'
-    ?'V1 · GEO · GCJ-02 APPROX. COORDS'
-    :'V2 · 标签避让 + 引导线 · GCJ-02 APPROX. COORDS';
+  updateMapNote();
   if(!mapChart||!mapReady)return;
   mapChart.setOption(mapOption(mapGeoLoaded),true);
   updateMapFilter();
@@ -639,33 +694,19 @@ function updateMapFilter(){
     try{localStorage.setItem('md.mapver',MAPVER);}catch(e){}
     applyMapVer();
   });
-  applyMapVer(); /* 先出 V1（无底图态），json 到位后再刷新 */
-  /* V2：roam（滚轮缩放/拖拽）后重排标签。roam 带缓动动画，动画中途 convertToPixel
-     是旧视图坐标——所以等"停手"(防抖)或动画结束('finished')再落位，杜绝错位残影 */
-  let v2Pend=false,v2Timer=null,v2LastRoam=0;
-  function v2Flush(){v2Pend=false;if(v2Timer){clearTimeout(v2Timer);v2Timer=null;}v2Layout();}
-  function v2Request(){
-    if(MAPVER!=='v2'||!mapGeoLoaded)return;
-    v2Pend=true;
-    if(v2Timer)clearTimeout(v2Timer);
-    v2Timer=setTimeout(v2Flush,420);
-  }
-  mapChart.on('georoam',function(){v2LastRoam=Date.now();v2Request();});
-  mapChart.on('finished',function(){
-    if(!v2Pend)return;
-    if(Date.now()-v2LastRoam>=90){v2Flush();return;} /* 缓动已settled */
-    if(!v2Timer)v2Timer=setTimeout(v2Flush,200);
+  /* 地图控制：＋ / － / 复位 + 双击放大（以光标为锚点） */
+  $('#mapCtrl').addEventListener('click',e=>{
+    const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.a==='reset'){mapChart.setOption({geo:{zoom:1,center:[105,35.5]}});v2Layout();updateMapNote(2.0);}
+    else mapZoomTo(b.dataset.a==='in'?1.5:1/1.5);
   });
-  window.addEventListener('resize',v2Request);
-  /* 缩放按钮：程序化改 geo.zoom，无动画，立即重排 */
-  function geoSet(o){mapChart.setOption({geo:o});v2Layout();}
-  function geoZoom(f){
-    const g=(mapChart.getOption().geo||[])[0];if(!g)return;
-    geoSet({zoom:Math.max(1,Math.min(14,g.zoom*f))});
-  }
-  $('#zIn').addEventListener('click',()=>geoZoom(1.6));
-  $('#zOut').addEventListener('click',()=>geoZoom(1/1.6));
-  $('#zRst').addEventListener('click',()=>geoSet({zoom:1.16,center:[105,35.5]}));
+  mapChart.getZr().on('dblclick',e=>{if(MAPVER==='v2')mapZoomTo(1.6,[e.offsetX,e.offsetY]);});
+  applyMapVer(); /* 先出 V1（无底图态），json 到位后再刷新 */
+  /* V2：roam（缩放/拖拽）与容器尺寸变化后重排标签 */
+  let v2Timer=null;
+  function v2Relayout(){if(MAPVER!=='v2')return;clearTimeout(v2Timer);v2Timer=setTimeout(v2Layout,120);}
+  mapChart.on('georoam',v2Relayout);
+  window.addEventListener('resize',v2Relayout);
   fetch('assets/china.json')
     .then(r=>r.json())
     .then(geo=>{echarts.registerMap('china',geo);mapGeoLoaded=true;mapReady=true;applyMapVer();})
