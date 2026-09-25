@@ -482,24 +482,94 @@ function mapData(){
     symbolSize:p.kmText.match(/([\d.]+)/)?Math.min(9+parseFloat(RegExp.$1)*.55,26):9,
   }));
 }
-/* V2：节点旁显示城市名。hideOverlap 让 ECharts 自动隐藏互相覆盖的标签，
-   数据按里程降序排布使大城市优先占位；同城多系统按出现顺序上下错开锚点。 */
-const V2_ANGLES=[0,-Math.PI/2,Math.PI/2,Math.PI,-Math.PI/4,Math.PI/4];
-function v2Data(){
-  const seen={},km=p=>parseFloat(p.kmText.match(/([\d.]+)/)?.[1]||0);
-  return [...PROJECTS].sort((a,b)=>km(b)-km(a)).map(p=>{
-    const i=seen[p.city]=(seen[p.city]||0);seen[p.city]++;
-    const a=V2_ANGLES[i%V2_ANGLES.length];
-    return {
-      name:`${p.city} · ${p.name}`,value:[p.lng,p.lat],pid:p.id,statusKey:p.statusKey,
-      itemStyle:{color:STATUS[p.statusKey].color,shadowBlur:12,shadowColor:STATUS[p.statusKey].color+'88'},
-      symbolSize:km(p)?Math.min(9+km(p)*.55,26):9,
-      label:{show:true,formatter:p.city,position:'right',
-        offset:[Math.round(Math.cos(a)*12),Math.round(-Math.sin(a)*12)],
-        distance:8,color:'#c6ccd6',fontSize:11,
-        textBorderColor:'#0a0b0d',textBorderWidth:2.5},
-    };
+/* V2 标签布局：贪心碰撞避让 + 引导线（不隐藏任何标签）
+   1) 用 measureText 得到标签真实像素宽高，按里程降序为每个点找空位
+   2) 候选位 = 节点周围 8 方向 × 3 档距离，先试右/左，避开所有已放标签与圆点
+   3) 标签被推远时画引导线（lines 系列）连回节点；roam/缩放/筛选变化后自动重排 */
+const V2_FONT='11px "Noto Sans SC",sans-serif';
+const V2_MCTX=document.createElement('canvas').getContext('2d');
+V2_MCTX.font=V2_FONT;
+function v2Km(p){const m=p.kmText.match(/([\d.]+)/);return m?parseFloat(m[1]):0;}
+function v2Sym(p){return v2Km(p)?Math.min(9+v2Km(p)*.55,26):9;}
+function rectHit(a,b){return !(a[2]<b[0]||b[2]<a[0]||a[3]<b[1]||b[3]<a[1]);}
+function v2Keep(){
+  const kw=fSearch.trim().toLowerCase();
+  return new Set(PROJECTS.filter(p=>(fStatus==='all'||p.statusKey===fStatus)&&(fMode==='all'||p.modeKey===fMode)&&(!kw||(p.city+p.name+p.province).toLowerCase().includes(kw))).map(p=>p.id));
+}
+function v2Layout(){
+  if(!mapChart||!mapReady||!mapGeoLoaded||MAPVER!=='v2')return; /* 标签避让依赖 geo 坐标系；底图缺失时跳过 */
+  if(!document.getElementById('mapChart').offsetWidth)return; /* 容器隐藏时 convertToPixel 返回 NaN */
+  const keep=v2Keep(),CW=mapChart.getWidth(),CH=mapChart.getHeight();
+  const rows=PROJECTS.map(p=>{
+    const px=mapChart.convertToPixel({geoIndex:0},[p.lng,p.lat]);
+    if(!px||!isFinite(px[0])||!isFinite(px[1]))return null;
+    return {p,x:px[0],y:px[1],sym:keep.has(p.id)?v2Sym(p):6,on:keep.has(p.id)};
+  }).filter(Boolean);
+  const obs=[];
+  rows.forEach(o=>{const r=o.sym/2+2;obs.push([o.x-r,o.y-r,o.x+r,o.y+r]);});
+  const placed=[];
+  const items=[],lines=[];
+  [...rows].sort((a,b)=>(b.on-a.on)||(v2Km(b.p)-v2Km(a.p))).forEach(o=>{
+    const p=o.p;
+    if(!o.on){
+      items.push({name:`${p.city} · ${p.name}`,value:[p.lng,p.lat],pid:p.id,silent:true,symbolSize:6,
+        itemStyle:{color:'#3a3f49',shadowBlur:0},label:{show:false}});
+      return;
+    }
+    const w=Math.ceil(V2_MCTX.measureText(p.city).width)+10,h=22; /* 预测框含 4~5px 安全边距，吸收渲染基线误差 */
+    let best=null;
+    outer:for(const D of [14,28,44,62,82]){
+      const cands=[
+        [o.x+o.sym/2+D,o.y-h/2,1],[o.x-o.sym/2-D-w,o.y-h/2,-1],
+        [o.x-w/2,o.y-o.sym/2-D-h,0],[o.x-w/2,o.y+o.sym/2+D,0],
+        [o.x+o.sym/2+D,o.y-h/2-D,1],[o.x-o.sym/2-D-w,o.y-h/2-D,-1],
+        [o.x+o.sym/2+D,o.y-h/2+D,1],[o.x-o.sym/2-D-w,o.y-h/2+D,-1],
+      ];
+      for(const c of cands){
+        const x=c[0],y=c[1],rc=[x,y,x+w,y+h];
+        if(x<2||y<2||x+w>CW-2||y+h>CH-2)continue;
+        if(obs.some(r=>rectHit(r,rc))||placed.some(r=>rectHit(r,rc)))continue;
+        best={x:rc[0]+5,y:rc[1]+3,w:w-10,h:16,dir:c[2]};placed.push(rc);break outer;
+      }
+    }
+    if(!best){ /* 五档内放不下：放宽"避开圆点"，只保证不与已放标签相撞 */
+      outer2:for(const D of [100,120,140]){
+        const cands=[
+          [o.x+o.sym/2+D,o.y-h/2,1],[o.x-o.sym/2-D-w,o.y-h/2,-1],
+          [o.x-w/2,o.y-o.sym/2-D-h,0],[o.x-w/2,o.y+o.sym/2+D,0],
+        ];
+        for(const c of cands){
+          const x=c[0],y=c[1],rc=[x,y,x+w,y+h];
+          if(x<2||y<2||x+w>CW-2||y+h>CH-2)continue;
+          if(placed.some(r=>rectHit(r,rc)))continue;
+          best={x:rc[0]+5,y:rc[1]+3,w:w-10,h:16,dir:c[2]};placed.push(rc);break outer2;
+        }
+      }
+    }
+    if(!best){const x=o.x+o.sym/2+14,y=o.y-h/2;placed.push([x,y,x+w,y+h]);best={x:x+5,y:y+3,w:w-10,h:16,dir:1};}
+    /* position:'top' 的默认锚点在圆顶部 (x, y-sym/2)，offset 把文字底边中心搬到目标框 */
+    const ox=Math.round(best.x+best.w/2-o.x),oy=Math.round(best.y+best.h-(o.y-o.sym/2));
+    items.push({name:`${p.city} · ${p.name}`,value:[p.lng,p.lat],pid:p.id,
+      symbolSize:o.sym,itemStyle:{color:STATUS[p.statusKey].color,shadowBlur:12,shadowColor:STATUS[p.statusKey].color+'88'},
+      label:{show:true,formatter:p.city,position:'top',distance:0,offset:[ox,oy],
+        color:'#c6ccd6',fontSize:11,fontFamily:'"Noto Sans SC",sans-serif',
+        textBorderColor:'#0a0b0d',textBorderWidth:2.5}});
+    /* 引导线：标签被推离原位才画；L 形折线 节点边缘 → 折角 → 标签框近点侧中点 */
+    const far=best.x>o.x+o.sym/2+15||best.x+best.w<o.x-o.sym/2-15||best.y>o.y+o.sym/2+15||best.y+best.h<o.y-o.sym/2-15;
+    if(far){
+      let s,e;
+      if(best.dir===1){s=[o.x+o.sym/2,o.y];e=[best.x,best.y+best.h/2];}
+      else if(best.dir===-1){s=[o.x-o.sym/2,o.y];e=[best.x+best.w,best.y+best.h/2];}
+      else if(best.y<o.y){s=[o.x,o.y-o.sym/2];e=[best.x+best.w/2,best.y+best.h];}
+      else{s=[o.x,o.y+o.sym/2];e=[best.x+best.w/2,best.y];}
+      const px=s[1]===e[1]?[s,e]:[s,[e[0],s[1]],e];
+      lines.push({coords:px.map(q=>mapChart.convertFromPixel({geoIndex:0},q))});
+    }
   });
+  mapChart.setOption({series:[
+    {id:'v2pts',data:items},
+    {id:'v2lines',data:lines},
+  ]});
 }
 function mapOption(withGeo){
   const v2=MAPVER==='v2';
@@ -511,27 +581,33 @@ function mapOption(withGeo){
     ...(withGeo?{}:{xAxis:{show:false,min:95,max:128},yAxis:{show:false,min:20,max:45},grid:{left:20,right:20,top:20,bottom:20}}),
     tooltip:{...ecBase().tooltip,formatter:d=>{const p=PROJECTS.find(x=>x.id===d.data.pid);
       return `<b>${p.city} · ${p.name}</b><br>${p.mode} · ${STATUS[p.statusKey].name}<br>${p.yearStart} – ${p.yearEnd||'（仅存一线）'}`;}},
-    series:[{type:'scatter',coordinateSystem:withGeo?'geo':'cartesian2d',data:v2?v2Data():mapData(),
-      emphasis:{scale:1.6},zlevel:2,
-      ...(v2?{labelLayout:{hideOverlap:true}}:{}),
-    }],
+    series:v2&&withGeo?[
+      {id:'v2pts',type:'scatter',coordinateSystem:'geo',data:mapData(),
+        emphasis:{scale:1.6},zlevel:2},
+      {id:'v2lines',type:'lines',coordinateSystem:'geo',data:[],
+        silent:true,zlevel:1,lineStyle:{color:'#525c6b',width:1,opacity:.9}},
+    ]:[
+      {id:'v2pts',type:'scatter',coordinateSystem:withGeo?'geo':'cartesian2d',data:mapData(),
+        emphasis:{scale:1.6},zlevel:2},
+    ],
   };
 }
 function applyMapVer(){
   document.querySelectorAll('#mapVer button').forEach(b=>b.classList.toggle('act',b.dataset.v===MAPVER));
   $('#mapNote').textContent=MAPVER==='v1'
     ?'V1 · GEO · GCJ-02 APPROX. COORDS'
-    :'V2 · 标签避让试验 · GCJ-02 APPROX. COORDS';
+    :'V2 · 标签避让 + 引导线 · GCJ-02 APPROX. COORDS';
   if(!mapChart||!mapReady)return;
   mapChart.setOption(mapOption(mapGeoLoaded),true);
   updateMapFilter();
 }
 function updateMapFilter(){
   if(!mapChart||!mapReady)return;
+  if(MAPVER==='v2'){v2Layout();return;}
   const kw=fSearch.trim().toLowerCase();
   const keep=new Set(PROJECTS.filter(p=>(fStatus==='all'||p.statusKey===fStatus)&&(fMode==='all'||p.modeKey===fMode)&&(!kw||(p.city+p.name+p.province).toLowerCase().includes(kw))).map(p=>p.id));
-  const d=(MAPVER==='v2'?v2Data():mapData()).map(o=>{const o2={...o};
-    if(!keep.has(o2.pid)){o2.itemStyle={color:'#3a3f49',shadowBlur:0};o2.symbolSize=6;o2.silent=true;if(o2.label)o2.label={show:false};}
+  const d=mapData().map(o=>{const o2={...o};
+    if(!keep.has(o2.pid)){o2.itemStyle={color:'#3a3f49',shadowBlur:0};o2.symbolSize=6;o2.silent=true;}
     return o2;});
   mapChart.setOption({series:[{data:d}]});
 }
@@ -545,6 +621,11 @@ function updateMapFilter(){
     applyMapVer();
   });
   applyMapVer(); /* 先出 V1（无底图态），json 到位后再刷新 */
+  /* V2：roam（缩放/拖拽）与容器尺寸变化后重排标签 */
+  let v2Timer=null;
+  function v2Relayout(){if(MAPVER!=='v2')return;clearTimeout(v2Timer);v2Timer=setTimeout(v2Layout,120);}
+  mapChart.on('georoam',v2Relayout);
+  window.addEventListener('resize',v2Relayout);
   fetch('assets/china.json')
     .then(r=>r.json())
     .then(geo=>{echarts.registerMap('china',geo);mapGeoLoaded=true;mapReady=true;applyMapVer();})
