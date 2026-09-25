@@ -77,8 +77,12 @@ section.block{padding:11vh 6vw;position:relative}
 /* ---------- map ---------- */
 .map-wrap{position:relative;border:1px solid var(--border);background:var(--panel)}
 #mapChart{width:100%;height:min(72vh,680px)}
-.map-note{position:absolute;left:16px;bottom:12px;font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.08em;pointer-events:none}
+.map-note{position:absolute;left:16px;top:12px;font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.08em;pointer-events:none;z-index:5}
 .map-fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:var(--faint);font-size:13px}
+.map-tools{position:absolute;top:10px;right:10px;z-index:5;display:flex;flex-direction:column;gap:5px}
+.map-tools button{width:30px;height:30px;background:rgba(23,25,29,.88);border:1px solid var(--border);color:var(--muted);font-size:15px;line-height:1;cursor:pointer;transition:all .2s;font-family:var(--mono);display:flex;align-items:center;justify-content:center;padding:0}
+.map-tools button:hover{color:#0a0b0d;background:var(--signal);border-color:var(--signal)}
+#zRst{font-size:11px;letter-spacing:.05em}
 .map-head{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
 .map-head .sec-desc{margin-bottom:40px}
 .map-ver{display:inline-flex;border:1px solid var(--border);background:var(--panel);margin-left:auto;margin-bottom:40px;flex:none}
@@ -229,6 +233,11 @@ footer a:hover{color:var(--signal);border-color:var(--signal)}
   </div>
   <div class="map-wrap rv">
     <div id="mapChart"></div>
+    <div class="map-tools" id="mapTools">
+      <button id="zIn" title="放大">＋</button>
+      <button id="zOut" title="缩小">－</button>
+      <button id="zRst" title="重置视图">RST</button>
+    </div>
     <div class="map-note" id="mapNote">GEO · GCJ-02 APPROX. COORDS</div>
     <div class="map-fallback" id="mapFallback">底图加载失败，已切换为坐标散点视图</div>
   </div>
@@ -505,8 +514,11 @@ function v2Layout(){
     if(!px||!isFinite(px[0])||!isFinite(px[1]))return null;
     return {p,x:px[0],y:px[1],sym:keep.has(p.id)?v2Sym(p):6,on:keep.has(p.id)};
   }).filter(Boolean);
+  /* 视图外的点：圆点照常（滚回来就在），但不参与标签排布 */
+  const onScreen=rows.filter(o=>o.on&&o.x>=-6&&o.x<=CW+6&&o.y>=-6&&o.y<=CH+6);
   const obs=[];
   rows.forEach(o=>{const r=o.sym/2+2;obs.push([o.x-r,o.y-r,o.x+r,o.y+r]);});
+  const vis=new Set(onScreen);
   const placed=[];
   const items=[],lines=[];
   [...rows].sort((a,b)=>(b.on-a.on)||(v2Km(b.p)-v2Km(a.p))).forEach(o=>{
@@ -514,6 +526,12 @@ function v2Layout(){
     if(!o.on){
       items.push({name:`${p.city} · ${p.name}`,value:[p.lng,p.lat],pid:p.id,silent:true,symbolSize:6,
         itemStyle:{color:'#3a3f49',shadowBlur:0},label:{show:false}});
+      return;
+    }
+    if(!vis.has(o)){ /* 屏外保留正常圆点样式，只是不打标签 */
+      items.push({name:`${p.city} · ${p.name}`,value:[p.lng,p.lat],pid:p.id,symbolSize:o.sym,
+        itemStyle:{color:STATUS[p.statusKey].color,shadowBlur:12,shadowColor:STATUS[p.statusKey].color+'88'},
+        label:{show:false}});
       return;
     }
     const w=Math.ceil(V2_MCTX.measureText(p.city).width)+10,h=22; /* 预测框含 4~5px 安全边距，吸收渲染基线误差 */
@@ -574,7 +592,7 @@ function v2Layout(){
 function mapOption(withGeo){
   const v2=MAPVER==='v2';
   return {...ecBase(),
-    geo:withGeo?{map:'china',roam:true,zoom:1.16,center:[105,35.5],
+    geo:withGeo?{map:'china',roam:true,scaleLimit:{min:1,max:14},zoom:1.16,center:[105,35.5],
       itemStyle:{areaColor:'#101216',borderColor:'#2a2f38',borderWidth:.6},
       emphasis:{itemStyle:{areaColor:'#181b21'},label:{show:false}},
       select:{disabled:true}}:undefined,
@@ -583,9 +601,10 @@ function mapOption(withGeo){
       return `<b>${p.city} · ${p.name}</b><br>${p.mode} · ${STATUS[p.statusKey].name}<br>${p.yearStart} – ${p.yearEnd||'（仅存一线）'}`;}},
     series:v2&&withGeo?[
       {id:'v2pts',type:'scatter',coordinateSystem:'geo',data:mapData(),
-        emphasis:{scale:1.6},zlevel:2},
+        emphasis:{scale:1.6,label:{color:'#fff'}},zlevel:2,animation:false},
       {id:'v2lines',type:'lines',coordinateSystem:'geo',data:[],
-        silent:true,zlevel:1,lineStyle:{color:'#525c6b',width:1,opacity:.9}},
+        silent:true,zlevel:1,animation:false,
+        lineStyle:{color:'#525c6b',width:1,opacity:.9}},
     ]:[
       {id:'v2pts',type:'scatter',coordinateSystem:withGeo?'geo':'cartesian2d',data:mapData(),
         emphasis:{scale:1.6},zlevel:2},
@@ -621,11 +640,32 @@ function updateMapFilter(){
     applyMapVer();
   });
   applyMapVer(); /* 先出 V1（无底图态），json 到位后再刷新 */
-  /* V2：roam（缩放/拖拽）与容器尺寸变化后重排标签 */
-  let v2Timer=null;
-  function v2Relayout(){if(MAPVER!=='v2')return;clearTimeout(v2Timer);v2Timer=setTimeout(v2Layout,120);}
-  mapChart.on('georoam',v2Relayout);
-  window.addEventListener('resize',v2Relayout);
+  /* V2：roam（滚轮缩放/拖拽）后重排标签。roam 带缓动动画，动画中途 convertToPixel
+     是旧视图坐标——所以等"停手"(防抖)或动画结束('finished')再落位，杜绝错位残影 */
+  let v2Pend=false,v2Timer=null,v2LastRoam=0;
+  function v2Flush(){v2Pend=false;if(v2Timer){clearTimeout(v2Timer);v2Timer=null;}v2Layout();}
+  function v2Request(){
+    if(MAPVER!=='v2'||!mapGeoLoaded)return;
+    v2Pend=true;
+    if(v2Timer)clearTimeout(v2Timer);
+    v2Timer=setTimeout(v2Flush,420);
+  }
+  mapChart.on('georoam',function(){v2LastRoam=Date.now();v2Request();});
+  mapChart.on('finished',function(){
+    if(!v2Pend)return;
+    if(Date.now()-v2LastRoam>=90){v2Flush();return;} /* 缓动已settled */
+    if(!v2Timer)v2Timer=setTimeout(v2Flush,200);
+  });
+  window.addEventListener('resize',v2Request);
+  /* 缩放按钮：程序化改 geo.zoom，无动画，立即重排 */
+  function geoSet(o){mapChart.setOption({geo:o});v2Layout();}
+  function geoZoom(f){
+    const g=(mapChart.getOption().geo||[])[0];if(!g)return;
+    geoSet({zoom:Math.max(1,Math.min(14,g.zoom*f))});
+  }
+  $('#zIn').addEventListener('click',()=>geoZoom(1.6));
+  $('#zOut').addEventListener('click',()=>geoZoom(1/1.6));
+  $('#zRst').addEventListener('click',()=>geoSet({zoom:1.16,center:[105,35.5]}));
   fetch('assets/china.json')
     .then(r=>r.json())
     .then(geo=>{echarts.registerMap('china',geo);mapGeoLoaded=true;mapReady=true;applyMapVer();})
