@@ -6,8 +6,6 @@
 <title>遗失的轨交 · 中国消失的轨道交通档案</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/leaflet/leaflet.min.css">
-<script src="assets/leaflet/leaflet.min.js"></script>
 <script src="assets/echarts.min.js"></script>
 <style>
 :root{
@@ -77,47 +75,19 @@ section.block{padding:11vh 6vw;position:relative}
 .sec-desc{color:var(--muted);font-size:14px;max-width:680px;margin-bottom:40px}
 
 /* ---------- map ---------- */
-.map-wrap{position:relative;z-index:0;border:1px solid var(--border);background:var(--panel)}
-#gisMap{width:100%;height:min(72vh,680px);background:#0d0e11}
-.map-note{position:absolute;left:58px;top:12px;z-index:1000;font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.08em;pointer-events:none;text-shadow:0 1px 4px rgba(0,0,0,.8)}
-
-/* leaflet dark theme */
-.leaflet-container{font-family:var(--sans);background:#0d0e11}
-.leaflet-control-zoom a{background:rgba(18,19,22,.92)!important;color:var(--muted)!important;border-color:var(--border)!important;width:30px;height:30px;line-height:28px;font-size:16px}
-.leaflet-control-zoom a:hover{background:var(--signal)!important;color:#0a0b0d!important}
-.leaflet-bar{border-radius:0!important;box-shadow:0 4px 18px rgba(0,0,0,.5)!important}
-.leaflet-control-attribution{background:rgba(10,11,13,.78)!important;color:var(--faint)!important;font-size:10px!important;font-family:var(--mono)}
-.leaflet-control-attribution a{color:var(--muted)!important}
-.leaflet-control-layers{background:rgba(18,19,22,.92)!important;border:1px solid var(--border)!important;border-radius:0!important;color:var(--muted);box-shadow:0 4px 18px rgba(0,0,0,.5)!important;font-size:12px}
-.leaflet-control-layers-toggle{width:30px!important;height:30px!important;background-color:transparent!important;filter:invert(.65)}
-.leaflet-control-layers-expanded{padding:8px 12px}
-.leaflet-control-layers label{display:flex;align-items:center;gap:6px;cursor:pointer}
-.leaflet-control-layers input{accent-color:var(--signal)}
-.gis-tip{background:#1d2026!important;border:1px solid var(--border)!important;color:var(--text)!important;font-size:11.5px!important;padding:5px 9px!important;border-radius:0!important;box-shadow:0 4px 18px rgba(0,0,0,.55)!important;white-space:nowrap}
-.gis-tip b{color:var(--signal);font-weight:500}
-.leaflet-tooltip-top:before{border-top-color:var(--border)!important}
-.leaflet-popup-content-wrapper{background:#17191d!important;border:1px solid var(--border);color:var(--text)!important;border-radius:0!important;box-shadow:0 12px 44px rgba(0,0,0,.65)!important;padding:0!important}
-.leaflet-popup-tip{background:#17191d!important;border:1px solid var(--border);box-shadow:none!important}
-.leaflet-popup-content{margin:0!important;width:252px!important}
-.leaflet-popup-close-button{color:var(--faint)!important;top:6px!important;right:6px!important;z-index:2}
-.leaflet-popup-close-button:hover{color:var(--signal)!important}
-.pp-img{width:100%;aspect-ratio:16/8;object-fit:cover;display:block;filter:grayscale(.2) brightness(.88)}
-.pp{padding:14px 16px 16px}
-.pp-city{font-family:var(--mono);font-size:10px;color:var(--signal);letter-spacing:.22em}
-.pp-name{font-weight:500;font-size:14.5px;margin:5px 0 9px;line-height:1.45}
-.pp-meta{font-size:11.5px;color:var(--muted);line-height:1.8;margin-bottom:13px}
-.pp-meta s{width:7px;height:7px;border-radius:50%;display:inline-block;text-decoration:none;margin-right:6px}
-.pp-btn{width:100%;background:transparent;border:1px solid var(--signal);color:var(--signal);font-family:var(--sans);font-size:12px;padding:7px 0;cursor:pointer;transition:all .25s;letter-spacing:.12em}
-.pp-btn:hover{background:var(--signal);color:#0a0b0d}
-.gis-legend{background:rgba(18,19,22,.92);border:1px solid var(--border);padding:10px 12px;font-size:11px;color:var(--muted);min-width:132px;box-shadow:0 4px 18px rgba(0,0,0,.5)}
-.gl-title{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--faint);margin-bottom:7px}
-.gl-item{display:flex;align-items:center;gap:6px;padding:3px 4px;cursor:pointer;transition:color .2s,background .2s;border:1px solid transparent}
-.gl-item:hover{color:var(--text)}
-.gl-item.act{color:var(--text);border-color:var(--border);background:rgba(255,255,255,.045)}
-.gl-item s{width:8px;height:8px;border-radius:50%;display:inline-block;text-decoration:none;flex:none}
-.gl-item b{margin-left:auto;font-family:var(--mono);font-weight:400;color:var(--faint);font-size:10px}
-.marker-live{animation:markerPulse 2.4s ease-in-out infinite}
-@keyframes markerPulse{0%,100%{stroke-opacity:.95;stroke-width:1.4}50%{stroke-opacity:.25;stroke-width:4}}
+.map-wrap{position:relative;border:1px solid var(--border);background:var(--panel)}
+#mapChart{width:100%;height:min(72vh,680px)}
+.map-note{position:absolute;left:16px;bottom:12px;font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.08em;pointer-events:none}
+.map-fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:var(--faint);font-size:13px}
+.map-head{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
+.map-head .sec-desc{margin-bottom:40px}
+.map-ver{display:inline-flex;border:1px solid var(--border);background:var(--panel);margin-left:auto;margin-bottom:40px;flex:none}
+.map-ver button{background:transparent;border:none;border-right:1px solid var(--border);color:var(--faint);font-family:var(--mono);font-size:11px;letter-spacing:.12em;padding:7px 16px;cursor:pointer;transition:all .25s var(--ease-reveal);display:inline-flex;align-items:center;gap:7px}
+.map-ver button:last-child{border-right:none}
+.map-ver button:hover{color:var(--text)}
+.map-ver button.act{background:var(--signal);color:#141414;font-weight:500}
+.map-ver button i{font-style:normal;font-size:9px;letter-spacing:.18em;opacity:.65}
+.map-ver button .dot{width:6px;height:6px;border-radius:50%;background:#d8a24a;display:inline-block}
 
 /* ---------- timeline ---------- */
 .tl-scroll{overflow-x:auto;border:1px solid var(--border);background:var(--panel);padding:34px 30px 26px}
@@ -249,11 +219,18 @@ footer a:hover{color:var(--signal);border-color:var(--signal)}
 <section class="block" id="map">
   <div class="rv">
     <div class="sec-head"><span class="sec-num">01 / ATLAS</span><h2 class="sec-title">消失的地图</h2></div>
-    <p class="sec-desc">33 个轨交系统的地理分布，基于 Leaflet 的可交互 GIS 地图：滚轮缩放、拖拽平移，点击节点弹出档案摘要，右下角图例可按结局筛选。点的大小对应已建里程，颜色对应结局——东北的老摩电、云南的烂尾电车、散落全国的"幻想柱"，一目了然。</p>
+    <div class="map-head">
+      <p class="sec-desc" style="margin-bottom:40px">33 个轨交系统的地理分布。点的大小对应已建里程，颜色对应结局——东北的老摩电、云南的烂尾电车、散落全国的"幻想柱"，一目了然。点击节点可查看档案。右上角切换地图版本：V1 为原始版本，V2 在其基础上逐步开发。</p>
+      <div class="map-ver" id="mapVer">
+        <button class="act" data-v="v1">V1<i>原版</i></button>
+        <button data-v="v2">V2<i>开发中</i><s class="dot"></s></button>
+      </div>
+    </div>
   </div>
   <div class="map-wrap rv">
-    <div id="gisMap"></div>
-    <div class="map-note">GIS · LEAFLET + CARTO · GCJ-02 → WGS-84</div>
+    <div id="mapChart"></div>
+    <div class="map-note" id="mapNote">GEO · GCJ-02 APPROX. COORDS</div>
+    <div class="map-fallback" id="mapFallback">底图加载失败，已切换为坐标散点视图</div>
   </div>
 </section>
 
@@ -492,123 +469,87 @@ const charts=[];
 function mk(id){const c=echarts.init(document.getElementById(id),null,{renderer:'canvas'});charts.push(c);return c;}
 window.addEventListener('resize',()=>charts.forEach(c=>c.resize()));
 
-/* ============ coord transform: GCJ-02 → WGS-84 ============ */
-/* 数据集坐标为 GCJ-02（火星坐标），CARTO/OSM 底图为 WGS-84，需纠偏 */
-const gcj02towgs84=(function(){
-  const PI=3.14159265358979324,a=6378245.0,ee=0.00669342162296594323;
-  const outOfChina=(lng,lat)=>!(lng>73.66&&lng<135.05&&lat>3.86&&lat<53.55);
-  function tLat(lng,lat){
-    let r=-100+2*lng+3*lat+.2*lat*lat+.1*lng*lat+.2*Math.sqrt(Math.abs(lng));
-    r+=(20*Math.sin(6*lng*PI)+20*Math.sin(2*lng*PI))*2/3;
-    r+=(20*Math.sin(lat*PI)+40*Math.sin(lat/3*PI))*2/3;
-    r+=(160*Math.sin(lat/12*PI)+320*Math.sin(lat*PI/30))*2/3;
-    return r;
-  }
-  function tLng(lng,lat){
-    let r=300+lng+2*lat+.1*lng*lng+.1*lng*lat+.1*Math.sqrt(Math.abs(lng));
-    r+=(20*Math.sin(6*lng*PI)+20*Math.sin(2*lng*PI))*2/3;
-    r+=(20*Math.sin(lng*PI)+40*Math.sin(lng/3*PI))*2/3;
-    r+=(150*Math.sin(lng/12*PI)+300*Math.sin(lng/30*PI))*2/3;
-    return r;
-  }
-  return function(lng,lat){
-    if(outOfChina(lng,lat))return[lng,lat];
-    let dLat=tLat(lng-105,lat-35),dLng=tLng(lng-105,lat-35);
-    const radLat=lat/180*PI;
-    let magic=1-ee*Math.sin(radLat)*Math.sin(radLat);
-    const sqrtMagic=Math.sqrt(magic);
-    dLat=(dLat*180)/((a*(1-ee))/(magic*sqrtMagic)*PI);
-    dLng=(dLng*180)/(a/sqrtMagic*Math.cos(radLat)*PI);
-    return[lng*2-(lng+dLng),lat*2-(lat+dLat)];
+/* ============ map (ECharts) — V1 原版 / V2 开发中 ============ */
+let mapChart=null,mapReady=false,mapGeoLoaded=false;
+let MAPVER='v1';
+try{MAPVER=localStorage.getItem('md.mapver')||'v1';}catch(e){}
+{const qv=new URLSearchParams(location.search).get('ver');if(qv==='v1'||qv==='v2')MAPVER=qv;}
+function mapData(){
+  return PROJECTS.map(p=>({
+    name:`${p.city} · ${p.name}`,value:[p.lng,p.lat],pid:p.id,
+    statusKey:p.statusKey,
+    itemStyle:{color:STATUS[p.statusKey].color,shadowBlur:12,shadowColor:STATUS[p.statusKey].color+'88'},
+    symbolSize:p.kmText.match(/([\d.]+)/)?Math.min(9+parseFloat(RegExp.$1)*.55,26):9,
+  }));
+}
+/* V2：节点旁显示城市名。hideOverlap 让 ECharts 自动隐藏互相覆盖的标签，
+   数据按里程降序排布使大城市优先占位；同城多系统按出现顺序上下错开锚点。 */
+const V2_ANGLES=[0,-Math.PI/2,Math.PI/2,Math.PI,-Math.PI/4,Math.PI/4];
+function v2Data(){
+  const seen={},km=p=>parseFloat(p.kmText.match(/([\d.]+)/)?.[1]||0);
+  return [...PROJECTS].sort((a,b)=>km(b)-km(a)).map(p=>{
+    const i=seen[p.city]=(seen[p.city]||0);seen[p.city]++;
+    const a=V2_ANGLES[i%V2_ANGLES.length];
+    return {
+      name:`${p.city} · ${p.name}`,value:[p.lng,p.lat],pid:p.id,statusKey:p.statusKey,
+      itemStyle:{color:STATUS[p.statusKey].color,shadowBlur:12,shadowColor:STATUS[p.statusKey].color+'88'},
+      symbolSize:km(p)?Math.min(9+km(p)*.55,26):9,
+      label:{show:true,formatter:p.city,position:'right',
+        offset:[Math.round(Math.cos(a)*12),Math.round(-Math.sin(a)*12)],
+        distance:8,color:'#c6ccd6',fontSize:11,
+        textBorderColor:'#0a0b0d',textBorderWidth:2.5},
+    };
+  });
+}
+function mapOption(withGeo){
+  const v2=MAPVER==='v2';
+  return {...ecBase(),
+    geo:withGeo?{map:'china',roam:true,zoom:1.16,center:[105,35.5],
+      itemStyle:{areaColor:'#101216',borderColor:'#2a2f38',borderWidth:.6},
+      emphasis:{itemStyle:{areaColor:'#181b21'},label:{show:false}},
+      select:{disabled:true}}:undefined,
+    ...(withGeo?{}:{xAxis:{show:false,min:95,max:128},yAxis:{show:false,min:20,max:45},grid:{left:20,right:20,top:20,bottom:20}}),
+    tooltip:{...ecBase().tooltip,formatter:d=>{const p=PROJECTS.find(x=>x.id===d.data.pid);
+      return `<b>${p.city} · ${p.name}</b><br>${p.mode} · ${STATUS[p.statusKey].name}<br>${p.yearStart} – ${p.yearEnd||'（仅存一线）'}`;}},
+    series:[{type:'scatter',coordinateSystem:withGeo?'geo':'cartesian2d',data:v2?v2Data():mapData(),
+      emphasis:{scale:1.6},zlevel:2,
+      ...(v2?{labelLayout:{hideOverlap:true}}:{}),
+    }],
   };
-})();
-
-/* ============ GIS map (Leaflet) ============ */
-const gisMarkers={};
-let gisMap=null;
-function markerRadius(p){
-  const m=p.kmText.match(/([\d.]+)/);
-  const km=m?parseFloat(m[1]):0;
-  return Math.min(5+Math.sqrt(km)*1.5,14);
 }
-function popupHtml(p){
-  const st=STATUS[p.statusKey];
-  const img=p.img?`<img class="pp-img" src="${p.img}" alt="${p.name}" loading="lazy">`:'';
-  return `${img}<div class="pp">
-    <div class="pp-city">${p.province} · ${p.city}</div>
-    <div class="pp-name">${p.name}</div>
-    <div class="pp-meta"><s style="background:${st.color}"></s>${st.name} · ${p.mode}<br>${p.yearStart} – ${p.yearEnd||'至今（仅存 54 路）'} · ${p.kmText.split('（')[0]}</div>
-    <button class="pp-btn" onclick="openModal('${p.id}')">查看完整档案 →</button>
-  </div>`;
+function applyMapVer(){
+  document.querySelectorAll('#mapVer button').forEach(b=>b.classList.toggle('act',b.dataset.v===MAPVER));
+  $('#mapNote').textContent=MAPVER==='v1'
+    ?'V1 · GEO · GCJ-02 APPROX. COORDS'
+    :'V2 · 标签避让试验 · GCJ-02 APPROX. COORDS';
+  if(!mapChart||!mapReady)return;
+  mapChart.setOption(mapOption(mapGeoLoaded),true);
+  updateMapFilter();
 }
-function markerStyle(p,dim){
-  const st=STATUS[p.statusKey];
-  return dim
-    ?{fillColor:'#3a3f49',fillOpacity:.28,color:'rgba(255,255,255,.14)',weight:1}
-    :{fillColor:st.color,fillOpacity:.85,color:'rgba(255,255,255,.75)',weight:1.2};
+function updateMapFilter(){
+  if(!mapChart||!mapReady)return;
+  const kw=fSearch.trim().toLowerCase();
+  const keep=new Set(PROJECTS.filter(p=>(fStatus==='all'||p.statusKey===fStatus)&&(fMode==='all'||p.modeKey===fMode)&&(!kw||(p.city+p.name+p.province).toLowerCase().includes(kw))).map(p=>p.id));
+  const d=(MAPVER==='v2'?v2Data():mapData()).map(o=>{const o2={...o};
+    if(!keep.has(o2.pid)){o2.itemStyle={color:'#3a3f49',shadowBlur:0};o2.symbolSize=6;o2.silent=true;if(o2.label)o2.label={show:false};}
+    return o2;});
+  mapChart.setOption({series:[{data:d}]});
 }
 (function(){
-  gisMap=L.map('gisMap',{zoomControl:true,attributionControl:false,minZoom:3,maxZoom:17,worldCopyJump:true});
-  L.control.attribution({position:'bottomright',prefix:false}).addTo(gisMap);
-  const ATTR='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
-  const dark=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19,attribution:ATTR});
-  const light=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19,attribution:ATTR});
-  dark.addTo(gisMap);
-  L.control.layers({'暗色底图':dark,'亮色底图':light},null,{position:'topright',collapsed:true}).addTo(gisMap);
-
-  const pts=[];
-  PROJECTS.forEach(p=>{
-    const[lng,lat]=gcj02towgs84(p.lng,p.lat);
-    pts.push([lat,lng]);
-    const st=STATUS[p.statusKey];
-    const m=L.circleMarker([lat,lng],{...markerStyle(p,false),radius:markerRadius(p),className:p.yearEnd?undefined:'marker-live'});
-    m.bindTooltip(`<b>${p.city}</b> · ${p.name}`,{direction:'top',offset:[0,-8],className:'gis-tip',opacity:1});
-    m.bindPopup(popupHtml(p),{maxWidth:252,minWidth:252,offset:[0,-6],autoPanPadding:[24,24]});
-    m.on('mouseover',function(){if(!this.__dim)this.setStyle({weight:2.4,color:'#fff'});});
-    m.on('mouseout',function(){if(!this.__dim)this.setStyle({weight:1.2,color:'rgba(255,255,255,.75)'});});
-    m.addTo(gisMap);
-    gisMarkers[p.id]={m,p};
+  mapChart=mk('mapChart');
+  mapChart.on('click',d=>{if(d.data&&d.data.pid)openModal(d.data.pid);});
+  $('#mapVer').addEventListener('click',e=>{
+    const b=e.target.closest('button');if(!b)return;
+    MAPVER=b.dataset.v;
+    try{localStorage.setItem('md.mapver',MAPVER);}catch(e){}
+    applyMapVer();
   });
-  gisMap.fitBounds(L.latLngBounds(pts),{padding:[28,28]});
-
-  /* legend control — click to filter, synced with archive chips */
-  const legend=L.control({position:'bottomright'});
-  legend.onAdd=function(){
-    const div=L.DomUtil.create('div','gis-legend');
-    div.innerHTML='<div class="gl-title">结局 · 点击筛选</div>'+Object.entries(STATUS).map(([k,v])=>{
-      const n=PROJECTS.filter(p=>p.statusKey===k).length;
-      return `<div class="gl-item" data-k="${k}"><s style="background:${v.color}"></s>${v.name}<b>${n}</b></div>`;
-    }).join('');
-    L.DomEvent.disableClickPropagation(div);
-    div.addEventListener('click',e=>{
-      const it=e.target.closest('.gl-item');if(!it)return;
-      const k=it.dataset.k;
-      const cur=document.querySelector('#statusChips .chip.act');
-      const target=(cur&&cur.dataset.v===k)
-        ?document.querySelector('#statusChips .chip[data-v="all"]')
-        :document.querySelector(`#statusChips .chip[data-v="${k}"]`);
-      target.click();
-    });
-    return div;
-  };
-  legend.addTo(gisMap);
+  applyMapVer(); /* 先出 V1（无底图态），json 到位后再刷新 */
+  fetch('assets/china.json')
+    .then(r=>r.json())
+    .then(geo=>{echarts.registerMap('china',geo);mapGeoLoaded=true;mapReady=true;applyMapVer();})
+    .catch(()=>{$('#mapFallback').style.display='flex';mapReady=true;applyMapVer();});
 })();
-function updateMapFilter(){
-  if(!gisMap)return;
-  const kw=fSearch.trim().toLowerCase();
-  const keep=new Set(PROJECTS.filter(p=>
-    (fStatus==='all'||p.statusKey===fStatus)&&
-    (fMode==='all'||p.modeKey===fMode)&&
-    (!kw||(p.city+p.name+p.province).toLowerCase().includes(kw))
-  ).map(p=>p.id));
-  Object.values(gisMarkers).forEach(({m,p})=>{
-    const on=keep.has(p.id);
-    m.__dim=!on;
-    m.setStyle(markerStyle(p,!on));
-    m.setRadius(on?markerRadius(p):4);
-  });
-  document.querySelectorAll('.gl-item').forEach(el=>el.classList.toggle('act',fStatus!=='all'&&el.dataset.k===fStatus));
-}
 
 /* ============ charts ============ */
 (function(){

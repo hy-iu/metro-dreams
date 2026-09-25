@@ -6,14 +6,15 @@
 
 ## 内容
 
-- **可交互 GIS 地图**（Leaflet + CARTO 底图）：33 个系统按地理分布着色、按里程缩放，支持滚轮缩放 / 拖拽平移、点击节点弹出档案摘要、图例按结局一键筛选、暗/亮底图切换；数据坐标为 GCJ-02，页面内置 GCJ-02 → WGS-84 纠偏以对齐底图
+- **可交互地图**（ECharts geo + 中国省级 GeoJSON，含十段线）：33 个系统按地理分布着色、按里程缩放，支持缩放平移、悬停查看详情、点击节点打开完整档案
+- **地图版本切换 V1 / V2**：V1 是原始版本，V2 在其基础上逐步开发，当前进度为散点城市名标签 + 防重叠避让（`labelLayout.moveOverlap: shiftY`），选择会记在 localStorage
 - **时间轴**：每个系统的"生命跨度"（建成/开工 → 停运/拆除/叫停），✕ 标记生命终点
-- **档案库**：按结局、制式筛选 + 城市/线路搜索，完整档案弹窗（里程、投资、客流、故事、冷知识）
+- **档案库**：按结局、制式筛选 + 城市/线路搜索，完整档案弹窗（里程、投资、客流、故事、冷知识）；筛选与地图节点联动
 - **数据图说**（ECharts）：结局分布、制式分布、告别年代、客流与投资对比
 
 ## 本地运行
 
-纯静态站点，无需构建（Leaflet 与 ECharts 均已本地打包在 `app/assets/`）：
+纯静态站点，无需构建（ECharts 与底图 GeoJSON 均已打包在 `app/assets/`）：
 
 ```bash
 cd app
@@ -21,12 +22,11 @@ python3 -m http.server 8000
 # 打开 http://localhost:8000
 ```
 
-> 底图瓦片来自 CARTO CDN，需要联网。
+中文字体走 Google Fonts CDN，离线时会回退到系统字体。
 
 ## 技术栈
 
-- [Leaflet 1.9.4](https://leafletjs.com/) — GIS 地图（vendored）
-- [Apache ECharts](https://echarts.apache.org/) — 统计图表（vendored）
+- [Apache ECharts](https://echarts.apache.org/) — 地图 + 统计图表（vendored）
 - 原生 HTML / CSS / JS，无构建步骤
 
 ## 数据说明
